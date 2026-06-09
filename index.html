@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What Do You Drive?</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f5f3;
+      color: #1a1a18;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container { max-width: 580px; margin: 0 auto; }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: #666;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .row { display: flex; gap: 10px; }
+
+    input[type="text"] {
+      flex: 1;
+      border: 1px solid rgba(0,0,0,0.15);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 15px;
+      font-family: inherit;
+      background: #fff;
+      color: #1a1a18;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus { border-color: rgba(0,0,0,0.4); }
+
+    button {
+      background: #1a1a18;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-outline {
+      background: transparent;
+      color: #1a1a18;
+      border: 1px solid rgba(0,0,0,0.2);
+    }
+    .btn-outline:hover { background: #f5f5f3; opacity: 1; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge {
+      background: #f0efea;
+      border-radius: 99px;
+      font-size: 12px;
+      color: #666;
+      padding: 2px 10px;
+    }
+
+    .entries-card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .entry {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 1.25rem;
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+    }
+    .entry:last-child { border-bottom: none; }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #f0efea;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .entry-main { flex: 1; }
+    .entry-car { font-size: 15px; font-weight: 500; }
+    .entry-meta { font-size: 12px; color: #888; margin-top: 2px; }
+
+    .empty {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: #888;
+      font-size: 15px;
+    }
+
+    .status {
+      font-size: 13px;
+      color: #888;
+      margin-top: 0.5rem;
+      min-height: 18px;
+    }
+
+    .status.error { color: #c0392b; }
+    .status.success { color: #27ae60; }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #888;
+      font-size: 14px;
+    }
+
+    .refresh-btn {
+      padding: 6px 14px;
+      font-size: 13px;
+      margin-left: auto;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>🚗 What do you drive?</h1>
+  <p class="subtitle">Tell the world what's in your garage.</p>
+
+  <!-- ── CONFIG: replace these two values ── -->
+  <script>
+    const BIN_ID  = "6a281908da38895dfea07fca ";   // e.g. "64abc123def456"
+    const API_KEY = "$2a$10$BAopUFKHybGB9y2GPOq7D.nGILm/9UhuNGjDUQk2LYWIJ4Cdfym.O";   // e.g. "$2a$10$abc..."
+    const BIN_URL = `https://api.jsonbin.io/v3/b/${6a281908da38895dfea07fca}`;
+  </script>
+  <!-- ────────────────────────────────────── -->
+
+  <div class="card">
+    <label>Your name &amp; what you drive</label>
+    <div class="row">
+      <input type="text" id="nameInput" placeholder="Your name" style="max-width: 150px;" />
+      <input type="text" id="carInput" placeholder="e.g. 2019 Honda Civic" />
+      <button id="submitBtn" onclick="submitCar()">Add</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="section-header">
+    <span class="section-label">Everyone's rides</span>
+    <span class="badge" id="countBadge">loading…</span>
+    <button class="btn-outline refresh-btn" onclick="loadEntries()">↻ Refresh</button>
+  </div>
+
+  <div class="entries-card" id="entriesContainer">
+    <div class="loading">Loading…</div>
+  </div>
+
+</div>
+
+<script>
+  // ── Helpers ──────────────────────────────────────────────────────────────
+
+  function getInitials(name) {
+    return name.trim().split(' ')
+      .map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
+  }
+
+  function timeAgo(isoString) {
+    const diff = Math.floor((Date.now() - new Date(isoString)) / 1000);
+    if (diff < 60)  return 'just now';
+    if (diff < 3600) return Math.floor(diff/60) + ' min ago';
+    if (diff < 86400) return Math.floor(diff/3600) + ' hr ago';
+    return Math.floor(diff/86400) + 'd ago';
+  }
+
+  // ── Read from JSONBin ─────────────────────────────────────────────────────
+
+  async function loadEntries() {
+    const container = document.getElementById('entriesContainer');
+    container.innerHTML = '<div class="loading">Loading…</div>';
+
+    try {
+      const res = await fetch(BIN_URL + '/latest', {
+        headers: { 'X-Master-Key': API_KEY }
+      });
+      if (!res.ok) throw new Error('Could not load data');
+      const data = await res.json();
+      const cars = data.record.cars || [];
+
+      document.getElementById('countBadge').textContent =
+        cars.length + (cars.length === 1 ? ' entry' : ' entries');
+
+      if (cars.length === 0) {
+        container.innerHTML = '<div class="empty">No entries yet — be the first!</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+      [...cars].reverse().forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'entry';
+        div.innerHTML = `
+          <div class="avatar">${getInitials(entry.name)}</div>
+          <div class="entry-main">
+            <div class="entry-car">${escHtml(entry.car)}</div>
+            <div class="entry-meta">${escHtml(entry.name)} · ${timeAgo(entry.ts)}</div>
+          </div>`;
+        container.appendChild(div);
+      });
+    } catch (e) {
+      container.innerHTML = `<div class="empty" style="color:#c0392b;">
+        Failed to load. Check your Bin ID and API Key.</div>`;
+      document.getElementById('countBadge').textContent = 'error';
+    }
+  }
+
+  // ── Write to JSONBin ──────────────────────────────────────────────────────
+
+  async function submitCar() {
+    const nameEl  = document.getElementById('nameInput');
+    const carEl   = document.getElementById('carInput');
+    const btn     = document.getElementById('submitBtn');
+    const status  = document.getElementById('status');
+
+    const name = nameEl.value.trim();
+    const car  = carEl.value.trim();
+
+    if (!name) { setStatus('Please enter your name.', 'error'); nameEl.focus(); return; }
+    if (!car)  { setStatus('Please enter your car.', 'error');  carEl.focus();  return; }
+
+    btn.disabled = true;
+    setStatus('Saving…', '');
+
+    try {
+      // 1. Fetch current list
+      const getRes = await fetch(BIN_URL + '/latest', {
+        headers: { 'X-Master-Key': API_KEY }
+      });
+      if (!getRes.ok) throw new Error();
+      const data = await getRes.json();
+      const cars = data.record.cars || [];
+
+      // 2. Append new entry
+      cars.push({ name, car, ts: new Date().toISOString() });
+
+      // 3. PUT updated list back
+      const putRes = await fetch(BIN_URL, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': API_KEY
+        },
+        body: JSON.stringify({ cars })
+      });
+      if (!putRes.ok) throw new Error();
+
+      setStatus('Added!', 'success');
+      nameEl.value = '';
+      carEl.value  = '';
+      loadEntries();
+    } catch {
+      setStatus('Error saving. Check your API key.', 'error');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function setStatus(msg, type) {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = 'status ' + type;
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  loadEntries();
+
+  // Allow Enter key to submit
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitCar();
+  });
+</script>
+</body>
+</html>
