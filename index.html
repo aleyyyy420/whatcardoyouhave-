@@ -172,8 +172,8 @@
 <body>
 <div class="container">
 
-  <h1>🚗 What do you drive?</h1>
-  <p class="subtitle">Tell the world what's in your garage.</p>
+  <h1>what do you drive???</h1>
+  <p class="subtitle">tell the world what's in your garage!!</p>
 
   <!-- ── CONFIG: replace these two values ── -->
   <script>
@@ -187,14 +187,14 @@
     <label>Your name &amp; what you drive</label>
     <div class="row">
       <input type="text" id="nameInput" placeholder="Your name" style="max-width: 150px;" />
-      <input type="text" id="carInput" placeholder="e.g. 2019 Honda Civic" />
+      <input type="text" id="carInput" placeholder="e.g. 2024 Honda Civic Type R FL5" />
       <button id="submitBtn" onclick="submitCar()">Add</button>
     </div>
     <div class="status" id="status"></div>
   </div>
 
   <div class="section-header">
-    <span class="section-label">Everyone's rides</span>
+    <span class="section-label">everyone's rides</span>
     <span class="badge" id="countBadge">loading…</span>
     <button class="btn-outline refresh-btn" onclick="loadEntries()">↻ Refresh</button>
   </div>
@@ -273,8 +273,8 @@
     const name = nameEl.value.trim();
     const car  = carEl.value.trim();
 
-    if (!name) { setStatus('Please enter your name.', 'error'); nameEl.focus(); return; }
-    if (!car)  { setStatus('Please enter your car.', 'error');  carEl.focus();  return; }
+    if (!name) { setStatus('enter your name here!!', 'error'); nameEl.focus(); return; }
+    if (!car)  { setStatus('enter your car here!!', 'error');  carEl.focus();  return; }
 
     btn.disabled = true;
     setStatus('Saving…', '');
@@ -307,7 +307,7 @@
       carEl.value  = '';
       loadEntries();
     } catch {
-      setStatus('Error saving. Check your API key.', 'error');
+      setStatus('error saving.. meybe check your API key..?', 'error');
     } finally {
       btn.disabled = false;
     }
